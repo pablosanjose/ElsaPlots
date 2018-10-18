@@ -1,4 +1,4 @@
-function visualize(lat::Lattice; resolution = (1024, 1024), kw...)
+function plot(lat::Lattice; resolution = (1024, 1024), kw...)
     scene = Scene(resolution = resolution)
     cam3d!(scene)
 

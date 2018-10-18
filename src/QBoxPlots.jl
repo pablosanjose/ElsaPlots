@@ -6,6 +6,6 @@ using Base.Iterators: take, cycle
 
 export plot
 
-include("plot.jl")
+include("plotlattice.jl")
 
 end
