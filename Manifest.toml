@@ -111,6 +111,12 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 deps = ["Mmap"]
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
+[[Distances]]
+deps = ["LinearAlgebra", "Pkg", "Printf", "Random", "Statistics", "Test"]
+git-tree-sha1 = "2f38605722542f1c0a32dd2856fb529d8c226c69"
+uuid = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+version = "0.7.3"
+
 [[Distributed]]
 deps = ["LinearAlgebra", "Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
@@ -289,6 +295,12 @@ git-tree-sha1 = "ce3b85e484a5d4c71dd5316215069311135fa9f2"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "0.3.2"
 
+[[NearestNeighbors]]
+deps = ["Distances", "LinearAlgebra", "Mmap", "Pkg", "StaticArrays", "Test"]
+git-tree-sha1 = "aab46b96ae5c2a9c08146188016d6312276094e5"
+uuid = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
+version = "0.4.2"
+
 [[OffsetArrays]]
 deps = ["DelimitedFiles", "Test"]
 git-tree-sha1 = "f8cd140824f74f2948ff8660bc2292e16d29c1b7"
@@ -339,6 +351,14 @@ version = "0.4.0"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
+[[QBox]]
+deps = ["AbstractPlotting", "GeometryTypes", "LinearAlgebra", "Makie", "NearestNeighbors", "OffsetArrays", "Requires", "SparseArrays", "StaticArrays"]
+git-tree-sha1 = "693f808c221ec66b2fcb1175d78b24aad52e534d"
+repo-rev = "master"
+repo-url = "https://github.com/pablosanjose/QBox"
+uuid = "7d9ed76e-ca25-11e8-1412-8ff3848046c2"
+version = "0.1.0"
+
 [[QuartzImageIO]]
 deps = ["ColorTypes", "ColorVectorSpace", "FileIO", "FixedPointNumbers", "ImageCore", "Libdl", "Random", "Test"]
 git-tree-sha1 = "c747a56f223919b157e6cd9dc58d59c560586302"
@@ -376,6 +396,12 @@ deps = ["Pkg"]
 git-tree-sha1 = "7b1d07f411bc8ddb7977ec7f377b97b158514fe0"
 uuid = "189a3867-3050-52da-a836-e630ba90ab69"
 version = "0.2.0"
+
+[[Requires]]
+deps = ["Test"]
+git-tree-sha1 = "f6fbf4ba64d295e146e49e021207993b6b48c7d1"
+uuid = "ae029012-a4dd-5104-9daa-d747884805df"
+version = "0.5.2"
 
 [[Rotations]]
 deps = ["LinearAlgebra", "Pkg", "Random", "StaticArrays", "Statistics", "Test"]

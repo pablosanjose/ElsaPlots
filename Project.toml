@@ -1,9 +1,10 @@
-authors = ["Pablo San-Jose <lekand@gmail.com>"]
 name = "QBoxPlots"
 uuid = "462ee96f-7267-546d-9451-704919036b07"
+authors = ["Pablo San-Jose <lekand@gmail.com>"]
 version = "0.1.0"
 
 [deps]
 AbstractPlotting = "537997a7-5e4e-5d89-9595-2241ea00577e"
 GeometryTypes = "4d00f742-c7ba-57c2-abde-4428a4b178cb"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+QBox = "7d9ed76e-ca25-11e8-1412-8ff3848046c2"
