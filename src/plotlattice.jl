@@ -23,7 +23,7 @@ function default_theme(scene::SceneLike, ::Type{<: Plot(Lattice)})
     Theme(
         allintra = false, allcells = true, intralinks = true, interlinks = true,
         shaded = false, dimming = 0.75, 
-        siteradius = 0.2, siteborder = 0, siteborderdarken = 1.0,
+        siteradius = 0.2, siteborder = 8, siteborderdarken = 1.0,
         linkthickness = 20, linkoffset = 0.99, linkradius = 0.1,
         colorscheme = map(t -> RGBAf0(t...), ((0.410,0.067,0.031),(0.860,0.400,0.027),(0.940,0.780,0.000),(0.640,0.760,0.900),(0.310,0.370,0.650),(0.600,0.550,0.810),(0.150,0.051,0.100),(0.870,0.530,0.640),(0.720,0.130,0.250)))
         )
