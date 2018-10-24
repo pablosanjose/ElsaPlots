@@ -1,6 +1,6 @@
 import AbstractPlotting: default_theme, Plot, plot!, to_value
 using Base.Iterators: take, cycle
-using QBox: nsublats, bravaismatrix, boundingboxlat
+using QBox: nsublats, bravaismatrix, boundingboxlat, padright
 
 function plot(lat::Lattice; resolution = (1024, 1024), kw...)
     scene = Scene(resolution = resolution)
