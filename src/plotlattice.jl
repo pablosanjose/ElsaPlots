@@ -12,7 +12,7 @@ function plot(lat::Lattice; resolution = (1024, 1024), kw...)
 
     b1, b2 = boundingboxlat(lat)
     lookat = Vec3D((b1 + b2)/2)
-    eye = lookat + Vec3f0(0.,0.,2.)*normxy(b1 - b2)
+    eye = lookat + Vec3f0(0.,0.01,2.)*normxy(b1 - b2)
 
     update_cam!(scene, eye, lookat, Vec3f0(0,1,0))
     return plot
