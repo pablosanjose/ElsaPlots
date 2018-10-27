@@ -2,7 +2,7 @@ module QBoxPlots
 
 using QBox, Makie, GeometryTypes, LinearAlgebra
 
-export plot
+export plot, scale!
 
 include("plotlattice.jl")
 
