@@ -1,7 +1,3 @@
-import AbstractPlotting: default_theme, Plot, plot!, to_value
-using Base.Iterators: take, cycle
-using QBox: nsublats, bravaismatrix, boundingboxlat, padright
-
 function plot(lat::Lattice; resolution = (1024, 1024), kw...)
     scene = Scene(resolution = resolution)
     cam3d!(scene)
@@ -22,9 +18,9 @@ end
 function default_theme(scene::SceneLike, ::Type{<: Plot(Lattice)})
     Theme(
         allintra = false, allcells = true, intralinks = true, interlinks = true,
-        shaded = true, dimming = 0.75, 
+        shaded = false, dimming = 0.75, 
         siteradius = 0.00, siteborder = 8, siteborderdarken = 1.0,
-        linkthickness = 20, linkoffset = 0.99, linkradius = 0.005,
+        linkthickness = 4, linkoffset = 0.99, linkradius = 0.005,
         colorscheme = map(t -> RGBAf0(t...), ((0.410,0.067,0.031),(0.860,0.400,0.027),(0.940,0.780,0.000),(0.640,0.760,0.900),(0.310,0.370,0.650),(0.600,0.550,0.810),(0.150,0.051,0.100),(0.870,0.530,0.640),(0.720,0.130,0.250)))
         )
 end
@@ -81,7 +77,7 @@ function drawsites_hi!(plot, sites, color)
 end
 
 function drawlinks_lo!(plot, rdr, celldist, (col1, col2))
-    isempty(rdr) && return nothing
+    isempty(rdr) && return nothing 
     segments = [fullsegment(celldist + r, dr, plot[:siteradius][] * plot[:linkoffset][]) for (r, dr) in rdr]
     colsegments = collect(take(cycle((col1, col2)), 2 * length(segments)))
     linesegments!(plot, segments, linewidth = plot[:linkthickness][], color = colsegments)
@@ -103,7 +99,7 @@ end
 
 function fullsegment(r, dr, rad) 
     dr2 = dr*(1 - 2rad/norm(dr))/2
-    return Point3D(r - dr2) => Point3D(r + dr2)
+    return Point3D(r - dr2) => Point3D(r + dr2) # + Point3D(SVector(0,0,0.2rand()))
 end
 
 function halfsegment(r, dr, rad) 
