@@ -59,8 +59,8 @@ function plotlinks!(plot, ilink, celldist, colors; dimming = 0.0)
         iszero(celldist) || (col1 = transparent(col1, 1 - dimming))
         slink = ilink.slinks[ci]
         plot[:shaded][] ? 
-            drawlinks_hi!(plot, slink.rdr, celldist, (col1, col2)) : 
-            drawlinks_lo!(plot, slink.rdr, celldist, (col1, col2))
+            drawlinks_hi!(plot, nonzeros(slink.rdr), celldist, (col1, col2)) : 
+            drawlinks_lo!(plot, nonzeros(slink.rdr), celldist, (col1, col2))
     end
     return nothing
 end
