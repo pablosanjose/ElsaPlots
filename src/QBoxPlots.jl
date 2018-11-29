@@ -1,6 +1,6 @@
 module QBoxPlots
 
-using QBox, Makie, GeometryTypes, LinearAlgebra
+using QBox, Makie, GeometryTypes, LinearAlgebra, StaticArrays
 import AbstractPlotting: default_theme, Plot, plot!, to_value
 using Base.Iterators: take, cycle
 using QBox: nsublats, bravaismatrix, boundingboxlat, padright
