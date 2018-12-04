@@ -1,4 +1,4 @@
-name = "ElsaPlots.jl"
+name = "ElsaPlots"
 uuid = "462ee96f-7267-546d-9451-704919036b07"
 authors = ["Pablo San-Jose <lekand@gmail.com>"]
 version = "0.1.0"
