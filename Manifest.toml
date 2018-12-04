@@ -351,11 +351,11 @@ version = "0.4.0"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
-[[QBox]]
+[[Elsa]]
 deps = ["AbstractPlotting", "GeometryTypes", "LinearAlgebra", "Makie", "NearestNeighbors", "OffsetArrays", "Requires", "SparseArrays", "StaticArrays"]
 git-tree-sha1 = "693f808c221ec66b2fcb1175d78b24aad52e534d"
 repo-rev = "master"
-repo-url = "https://github.com/pablosanjose/QBox"
+repo-url = "https://github.com/pablosanjose/Elsa"
 uuid = "7d9ed76e-ca25-11e8-1412-8ff3848046c2"
 version = "0.1.0"
 

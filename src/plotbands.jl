@@ -58,7 +58,7 @@ end
 function AbstractPlotting.plot!(plot::Plot(Bandstructure))
     bs = to_value(plot[1])
 
-    nsubbands = QBox.ngroupsintra(bs.mesh.elements)
+    nsubbands = Elsa.ngroupsintra(bs.mesh.elements)
     colors = collect(take(cycle(plot[:colorscheme][]), nsubbands))
     
     sites = Point3D.(bs.mesh.lattice.sublats[1].sites)
@@ -68,7 +68,7 @@ function AbstractPlotting.plot!(plot::Plot(Bandstructure))
         mesh!(plot, sites, [e[j] for e in group, j in 1:3], color = colors[i], strokewidth = 8)
     end
 
-    # nsubbands = QBox.ngroups(bs.mesh.elements)
+    # nsubbands = Elsa.ngroups(bs.mesh.elements)
     # colors = collect(take(cycle(plot[:colorscheme][]), nsubbands))
     
     # sites = Point3D.(bs.mesh.lattice.sublats[1].sites)
