@@ -1,4 +1,4 @@
-function plot(bm::BrillouinMesh{T,2}; resolution = (1024, 1024), kw...) where {T}
+function plot(bm::Brillouin{T,2}; resolution = (1024, 1024), kw...) where {T}
     scene = Scene(resolution = resolution)
     cam3d!(scene)
 
@@ -8,15 +8,15 @@ function plot(bm::BrillouinMesh{T,2}; resolution = (1024, 1024), kw...) where {T
 
 end
 
-function default_theme(scene::SceneLike, ::Type{<: Plot(BrillouinMesh)})
+function default_theme(scene::SceneLike, ::Type{<: Plot(Brillouin)})
     Theme(
         wireframe = 0
         )
 end
 
-function AbstractPlotting.plot!(plot::Plot(BrillouinMesh))
+function AbstractPlotting.plot!(plot::Plot(Brillouin))
     bm = to_value(plot[1])
-    
+
     # for i in eachindex(bm.elements.indices)
     #     e = bm.elements.indices[i]
     #     sites = [Point3D(s) + Point3D(SVector(0,0,0.1*i)) for s in bm.mesh.sublats[1].sites]
@@ -28,7 +28,7 @@ function AbstractPlotting.plot!(plot::Plot(BrillouinMesh))
         # plot!(plot, bm.mesh)
 
         centers = [padright((sites[e[1]]+ sites[e[2]] + sites[e[3]])/3, Val(3)) for e in group]
-        normals = [cross(padright(sites[e[2]] - sites[e[1]], Val(3)), 
+        normals = [cross(padright(sites[e[2]] - sites[e[1]], Val(3)),
                         padright(sites[e[3]] - sites[e[1]], Val(3))) for e in group]
         segments = [Point3D(c) => Point3D(c + 60 * n) for (c,n) in zip(centers, normals)]
         linesegments!(plot, segments, color = :blue, strokewidth = 8)
@@ -60,7 +60,7 @@ function AbstractPlotting.plot!(plot::Plot(Bandstructure))
 
     nsubbands = Elsa.ngroupsintra(bs.mesh.elements)
     colors = collect(take(cycle(plot[:colorscheme][]), nsubbands))
-    
+
     sites = Point3D.(bs.mesh.lattice.sublats[1].sites)
     for i in 1:nsubbands
     # i=1
@@ -70,7 +70,7 @@ function AbstractPlotting.plot!(plot::Plot(Bandstructure))
 
     # nsubbands = Elsa.ngroups(bs.mesh.elements)
     # colors = collect(take(cycle(plot[:colorscheme][]), nsubbands))
-    
+
     # sites = Point3D.(bs.mesh.lattice.sublats[1].sites)
     # for (i, subband) in enumerate(bs.mesh.elements.groups)
     #     mesh!(plot, sites, [e[j] for e in subband, j in 1:3], color = colors[i], strokewidth = 8)
