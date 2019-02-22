@@ -1,13 +1,13 @@
 module ElsaPlots
 
-using Elsa, Makie, GeometryTypes, LinearAlgebra
+using Elsa, Makie, GeometryTypes, LinearAlgebra, SparseArrays
 import AbstractPlotting: default_theme, Plot, plot!, to_value
 using Base.Iterators: take, cycle
-using Elsa: nsublats, bravaismatrix, boundingboxlat, padright
+using Elsa: nsublats, bravaismatrix, padright
 
 export plot, scale!
 
 include("plotlattice.jl")
-include("plotbands.jl")
+# include("plotbands.jl")
 
 end

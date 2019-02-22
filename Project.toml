@@ -5,7 +5,9 @@ version = "0.1.0"
 
 [deps]
 AbstractPlotting = "537997a7-5e4e-5d89-9595-2241ea00577e"
+Elsa = "7d9ed76e-ca25-11e8-1412-8ff3848046c2"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 GeometryTypes = "4d00f742-c7ba-57c2-abde-4428a4b178cb"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
-Elsa = "7d9ed76e-ca25-11e8-1412-8ff3848046c2"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
