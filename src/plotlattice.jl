@@ -46,7 +46,7 @@ function AbstractPlotting.plot!(plot::Plot(System))
 
 
  function plotsites!(plot, sys, celldist, colors; dimming = 0.0)
-    for (sublat, color) in zip(sys.sublats, colors)
+    for (sublat, color) in zip(sys.lattice.sublats, colors)
         colordimmed = transparent(color, 1 - dimming)
         sites = [Point3D(celldist + site) for site in sublat.sites]
         plot[:shaded][] ? drawsites_hi!(plot, sites, colordimmed) : drawsites_lo!(plot, sites, colordimmed)
