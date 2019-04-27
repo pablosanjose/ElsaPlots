@@ -19,7 +19,7 @@ function default_theme(scene::SceneLike, ::Type{<:Plot(System)})
     Theme(
         allintra = false, allcells = true, intralinks = true, interlinks = true,
         shaded = false, dimming = 0.75,
-        siteradius = 0.10, siteborder = 8, siteborderdarken = 1.0,
+        meandr = 1, siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0,
         linkthickness = 4, linkoffset = 0.99, linkradius = 0.015,
         colorscheme = map(t -> RGBAf0(t...), ((0.410,0.067,0.031),(0.860,0.400,0.027),(0.940,0.780,0.000),(0.640,0.760,0.900),(0.310,0.370,0.650),(0.600,0.550,0.810),(0.150,0.051,0.100),(0.870,0.530,0.640),(0.720,0.130,0.250)))
         )
@@ -32,13 +32,18 @@ function AbstractPlotting.plot!(plot::Plot(System))
     bravais = bravaismatrix(sys)
     intrablock = sys.hamiltonian.intra
     celldist0 = bravais * intrablock.ndist
+
     for block in sys.hamiltonian.inters
         celldist = bravais * block.ndist
-        plot[:allintra][]   && plotlinks!(plot, sys, intrablock, celldist, colors; dimming = plot[:dimming][])
-        plot[:interlinks][] && plotlinks!(plot, sys, block, celldist0, colors; dimming = plot[:dimming][])
-        plot[:allcells][]   && plotsites!(plot, sys, celldist, colors; dimming = plot[:dimming][])
+        plot[:allintra][] && 
+            plotlinks!(plot, rdrs, intrablock, celldist, colors; dimming = plot[:dimming][])
+        plot[:interlinks][] && 
+            plotlinks!(plot, rdrs, block, celldist0, colors; dimming = plot[:dimming][])
+        plot[:allcells][] && 
+            plotsites!(plot, rdrs, celldist, colors; dimming = plot[:dimming][])
     end
-    plot[:intralinks][] && plotlinks!(plot, sys, intrablock, celldist0, colors; dimming = 0.0)
+    plot[:intralinks][] && 
+        plotlinks!(plot, sys, intrablock, celldist0, colors; dimming = 0.0)
     plotsites!(plot, sys, celldist0, colors; dimming = 0.0)
 
     return plot
@@ -53,24 +58,31 @@ function AbstractPlotting.plot!(plot::Plot(System))
     end
 end
 
-function plotlinks!(plot, sys, block, celldist, colors; dimming = 0.0)
-        rdrs = Elsa.uniquelinks(block, sys)
-        for c in CartesianIndices(rdrs)
-            rdr = rdrs[c]
-            (s1, s2) = Tuple(c)
-            col1, col2 = darken(colors[s1], 0.1), darken(colors[s2], 0.1)
-            col1 = transparent(col1, 1 - dimming)
-            iszero(celldist) || (col2 = transparent(col2, 1 - dimming))
-            plot[:shaded][] ?
-                drawlinks_hi!(plot, rdr, celldist, (col1, col2)) :
-                drawlinks_lo!(plot, rdr, celldist, (col1, col2))
-        end
+function plotlinks!(plot, sys::System{E,L,T,Tv}, block, celldist, colors; dimming = 0.0) where {E,L,T,Tv}
+    rdrs = Elsa.uniquelinks(block, sys)
+    normlast = rdr -> norm(last(rdr))
+    meandr = norm(zero(T))
+    for c in CartesianIndices(rdrs)
+        rdr = rdrs[c]
+        meandr = max(meandr, isempty(rdr) ? meandr : mean(normlast, rdr))
+        (s1, s2) = Tuple(c)
+        col1, col2 = darken(colors[s1], 0.1), darken(colors[s2], 0.1)
+        col1 = transparent(col1, 1 - dimming)
+        iszero(celldist) || (col2 = transparent(col2, 1 - dimming))
+        plot[:shaded][] ?
+            drawlinks_hi!(plot, rdr, celldist, (col1, col2)) :
+            drawlinks_lo!(plot, rdr, celldist, (col1, col2))
+    end
+    
+    @show meandr
+    plot[:meandr][] = meandr
     return nothing
 end
 
 function drawsites_lo!(plot, sites, color)
     isempty(sites) || scatter!(plot, sites,
-        markersize = 2*plot[:siteradius][], color = color, strokewidth = plot[:siteborder][],  strokecolor = darken(color, plot[:siteborderdarken][]))
+        markersize = 2 * plot[:siteradius][] * plot[:meandr][], color = color, 
+        strokewidth = plot[:siteborder][],  strokecolor = darken(color, plot[:siteborderdarken][]))
     return nothing
 end
 
