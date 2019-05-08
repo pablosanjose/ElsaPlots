@@ -36,11 +36,11 @@ function AbstractPlotting.plot!(plot::Plot(System))
     for block in sys.hamiltonian.inters
         celldist = bravais * block.ndist
         plot[:allintra][] && 
-            plotlinks!(plot, rdrs, intrablock, celldist, colors; dimming = plot[:dimming][])
+            plotlinks!(plot, sys, intrablock, celldist, colors; dimming = plot[:dimming][])
         plot[:interlinks][] && 
-            plotlinks!(plot, rdrs, block, celldist0, colors; dimming = plot[:dimming][])
+            plotlinks!(plot, sys, block, celldist0, colors; dimming = plot[:dimming][])
         plot[:allcells][] && 
-            plotsites!(plot, rdrs, celldist, colors; dimming = plot[:dimming][])
+            plotsites!(plot, sys, celldist, colors; dimming = plot[:dimming][])
     end
     plot[:intralinks][] && 
         plotlinks!(plot, sys, intrablock, celldist0, colors; dimming = 0.0)
