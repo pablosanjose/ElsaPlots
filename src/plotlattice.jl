@@ -19,15 +19,17 @@ function default_theme(scene::SceneLike, ::Type{<:Plot(System)})
     Theme(
         allintra = false, allcells = true, intralinks = true, interlinks = true,
         shaded = false, dimming = 0.75,
-        meandr = 1.0, siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0,
+        siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0,
         linkthickness = 4, linkoffset = 0.99, linkradius = 0.015,
-        colorscheme = map(t -> RGBAf0(t...), ((0.410,0.067,0.031),(0.860,0.400,0.027),(0.940,0.780,0.000),(0.640,0.760,0.900),(0.310,0.370,0.650),(0.600,0.550,0.810),(0.150,0.051,0.100),(0.870,0.530,0.640),(0.720,0.130,0.250)))
+        colorscheme = map(t -> RGBAf0(t...), ((0.960,0.600,.327), (0.410,0.067,0.031),(0.940,0.780,0.000),(0.640,0.760,0.900),(0.310,0.370,0.650),(0.600,0.550,0.810),(0.150,0.051,0.100),(0.870,0.530,0.640),(0.720,0.130,0.250)))
         )
 end
 
 function AbstractPlotting.plot!(plot::Plot(System))
     sys = to_value(plot[1])
     colors = collect(take(cycle(plot[:colorscheme][]), nsublats(sys)))
+    meandist = Elsa.meandist(sys)
+    plot[:siteradius][] *= meandist
 
     bravais = bravaismatrix(sys)
     intrablock = sys.hamiltonian.intra
@@ -42,6 +44,7 @@ function AbstractPlotting.plot!(plot::Plot(System))
         plot[:allcells][] && 
             plotsites!(plot, sys, celldist, colors; dimming = plot[:dimming][])
     end
+    
     plot[:intralinks][] && 
         plotlinks!(plot, sys, intrablock, celldist0, colors; dimming = 0.0)
     plotsites!(plot, sys, celldist0, colors; dimming = 0.0)
@@ -64,7 +67,6 @@ function plotlinks!(plot, sys::System{E,L,T,Tv}, block, celldist, colors; dimmin
     meandr = norm(zero(T))
     for c in CartesianIndices(rdrs)
         rdr = rdrs[c]
-        meandr = max(meandr, isempty(rdr) ? meandr : mean(normlast, rdr))
         (s1, s2) = Tuple(c)
         col1, col2 = darken(colors[s1], 0.1), darken(colors[s2], 0.1)
         col1 = transparent(col1, 1 - dimming)
@@ -73,26 +75,28 @@ function plotlinks!(plot, sys::System{E,L,T,Tv}, block, celldist, colors; dimmin
             drawlinks_hi!(plot, rdr, celldist, (col1, col2)) :
             drawlinks_lo!(plot, rdr, celldist, (col1, col2))
     end
-    
-    iszero(meandr) || (plot[:meandr][] = meandr)
+
     return nothing
 end
 
 function drawsites_lo!(plot, sites, color)
     isempty(sites) || scatter!(plot, sites,
-        markersize = 2 * plot[:siteradius][] * plot[:meandr][], color = color, 
-        strokewidth = plot[:siteborder][],  strokecolor = darken(color, plot[:siteborderdarken][]))
+        markersize = 2 * plot[:siteradius][], color = color, 
+        strokewidth = plot[:siteborder][],  
+        strokecolor = darken(color, plot[:siteborderdarken][]))
     return nothing
 end
 
 function drawsites_hi!(plot, sites, color)
-    isempty(sites) || meshscatter!(plot, sites, markersize = plot[:siteradius], color = color)
+    isempty(sites) || meshscatter!(plot, sites, 
+        markersize = plot[:siteradius][]* plot[:linkoffset][], color = color)
     return nothing
 end
 
 function drawlinks_lo!(plot, rdr, celldist, (col1, col2))
     isempty(rdr) && return nothing
-    segments = [fullsegment(celldist + r, dr, plot[:siteradius][] * plot[:linkoffset][]) for (r, dr) in rdr]
+    segments = [fullsegment(celldist + r, dr, plot[:siteradius][] * plot[:linkoffset][]) 
+                for (r, dr) in rdr]
     colsegments = collect(take(cycle((col2, col1)), 2 * length(segments)))
     linesegments!(plot, segments, linewidth = plot[:linkthickness][], color = colsegments)
     return nothing
@@ -111,13 +115,8 @@ function drawlinks_hi!(plot, rdr, celldist, (col1, col2))
 end
 
 function fullsegment(r, dr, rad)
-    dr2 = dr*(1 - 2rad/norm(dr))/2
+    dr2 = (dr/2) * (1 - rad / norm(dr/2))
     return Point3D(r - dr2) => Point3D(r + dr2) # + Point3D(SVector(0,0,0.2rand()))
-end
-
-function halfsegment(r, dr, rad)
-    dr2 = dr*(1 - 2rad/norm(dr))/2
-    return  Vec3D(dr2)
 end
 
 
