@@ -63,8 +63,6 @@ end
 
 function plotlinks!(plot, sys::System{E,L,T,Tv}, block, celldist, colors; dimming = 0.0) where {E,L,T,Tv}
     rdrs = Elsa.uniquelinks(block, sys)
-    normlast = rdr -> norm(last(rdr))
-    meandr = norm(zero(T))
     for c in CartesianIndices(rdrs)
         rdr = rdrs[c]
         (s1, s2) = Tuple(c)
