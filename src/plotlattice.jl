@@ -28,8 +28,8 @@ end
 function AbstractPlotting.plot!(plot::Plot(System))
     sys = to_value(plot[1])
     colors = collect(take(cycle(plot[:colorscheme][]), nsublats(sys)))
-    meandist = Elsa.meandist(sys)
-    plot[:siteradius][] *= meandist
+    
+    plot[:siteradius][] *= meandist(sys)
 
     bravais = bravaismatrix(sys)
     intrablock = sys.hamiltonian.intra
@@ -62,7 +62,7 @@ function AbstractPlotting.plot!(plot::Plot(System))
 end
 
 function plotlinks!(plot, sys::System{E,L,T,Tv}, block, celldist, colors; dimming = 0.0) where {E,L,T,Tv}
-    rdrs = Elsa.uniquelinks(block, sys)
+    rdrs = uniquelinks(block, sys)
     for c in CartesianIndices(rdrs)
         rdr = rdrs[c]
         (s1, s2) = Tuple(c)
