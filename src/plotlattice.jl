@@ -28,7 +28,7 @@ end
 function AbstractPlotting.plot!(plot::Plot(System))
     sys = to_value(plot[1])
     colors = collect(take(cycle(plot[:colorscheme][]), nsublats(sys)))
-    
+
     plot[:siteradius][] *= meandist(sys)
 
     bravais = bravaismatrix(sys)
@@ -37,15 +37,15 @@ function AbstractPlotting.plot!(plot::Plot(System))
 
     for block in sys.hamiltonian.inters
         celldist = bravais * block.ndist
-        plot[:allintra][] && 
+        plot[:allintra][] &&
             plotlinks!(plot, sys, intrablock, celldist, colors; dimming = plot[:dimming][])
-        plot[:interlinks][] && 
+        plot[:interlinks][] &&
             plotlinks!(plot, sys, block, celldist0, colors; dimming = plot[:dimming][])
-        plot[:allcells][] && 
+        plot[:allcells][] &&
             plotsites!(plot, sys, celldist, colors; dimming = plot[:dimming][])
     end
-    
-    plot[:intralinks][] && 
+
+    plot[:intralinks][] &&
         plotlinks!(plot, sys, intrablock, celldist0, colors; dimming = 0.0)
     plotsites!(plot, sys, celldist0, colors; dimming = 0.0)
 
@@ -79,21 +79,21 @@ end
 
 function drawsites_lo!(plot, sites, color)
     isempty(sites) || scatter!(plot, sites,
-        markersize = 2 * plot[:siteradius][], color = color, 
-        strokewidth = plot[:siteborder][],  
+        markersize = 2 * plot[:siteradius][], color = color,
+        strokewidth = plot[:siteborder][],
         strokecolor = darken(color, plot[:siteborderdarken][]))
     return nothing
 end
 
 function drawsites_hi!(plot, sites, color)
-    isempty(sites) || meshscatter!(plot, sites, 
+    isempty(sites) || meshscatter!(plot, sites,
         markersize = plot[:siteradius][]* plot[:linkoffset][], color = color)
     return nothing
 end
 
 function drawlinks_lo!(plot, rdr, celldist, (col1, col2))
     isempty(rdr) && return nothing
-    segments = [fullsegment(celldist + r, dr, plot[:siteradius][] * plot[:linkoffset][]) 
+    segments = [fullsegment(celldist + r, dr, plot[:siteradius][] * plot[:linkoffset][])
                 for (r, dr) in rdr]
     colsegments = collect(take(cycle((col2, col1)), 2 * length(segments)))
     linesegments!(plot, segments, linewidth = plot[:linkthickness][], color = colsegments)
