@@ -19,8 +19,15 @@ function plot!(plot::BandPlot)
     for (nb, color) in zip(bands, colors)
         band = bs.bands[nb]
         vertices = band.mesh.vertices
-        simplices = [s[j] for s in band.mesh.simplices, j in 1:3]
-        mesh!(plot, vertices, simplices, color = color, strokewidth = 8)
+        simplices = [s[j] for s in band.simplices, j in 1:3]
+        if isempty(simplices)
+            scatter!(plot, vertices, color = color)
+        else
+            mesh!(plot, vertices, simplices, color = color, transparency = false)
+            l = Elsa.simplices(band.mesh, Val(2))
+            linesegments!(plot, (t -> vertices[first(t)] => vertices[last(t)]).(l), linewidth = 1)
+        end
+        # scatter!(plot, vertices, color = color)
     end
     return plot
  end
