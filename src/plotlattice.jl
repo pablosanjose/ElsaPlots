@@ -1,3 +1,53 @@
+plot(bs::Hamiltonian{<:Lattice{3}}; kw...) = hamiltonianplot3d(bs; kw...)
+plot(bs::Hamiltonian{<:Lattice{2}}; kw...) = hamiltonianplot2d(bs; kw...)
+plot(bs::Hamiltonian{<:Lattice{1}}; kw...) = hamiltonianplot2d(bs; kw...)
+
+plot(bs::Lattice{3}; kw...) = latticeplot3d(bs; kw...)
+plot(bs::Lattice{2}; kw...) = latticeplot2d(bs; kw...)
+plot(bs::Lattice{1}; kw...) = latticeplot2d(bs; kw...)
+
+@recipe(HamiltonianPlot3D, hamiltonian) do scene
+    Theme(
+        allintra = false, allcells = true, intralinks = true, interlinks = true,
+        shaded = false, dimming = 0.75,
+        siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0,
+        linkthickness = 4, linkoffset = 0.99, linkradius = 0.015,
+        colorscheme = map(t -> RGBAf0(t...),
+            ((0.960,0.600,.327), (0.410,0.067,0.031),(0.940,0.780,0.000),
+             (0.640,0.760,0.900),(0.310,0.370,0.650),(0.600,0.550,0.810),
+             (0.150,0.051,0.100),(0.870,0.530,0.640),(0.720,0.130,0.250)))
+    )
+end
+
+function plot!(plot::HamiltonianPlot3D)
+    h = to_value(plot[1])
+    lat = h.lattice
+    colors = collect(take(cycle(plot[:colorscheme][]), Elsa.nsublats(lat)))
+
+    plot[:siteradius][] *= meandist(sys)
+
+    bravais = bravaismatrix(sys)
+    intrablock = sys.hamiltonian.intra
+    celldist0 = bravais * intrablock.ndist
+
+    for block in sys.hamiltonian.inters
+        celldist = bravais * block.ndist
+        plot[:allintra][] &&
+            plotlinks!(plot, sys, intrablock, celldist, colors; dimming = plot[:dimming][])
+        plot[:interlinks][] &&
+            plotlinks!(plot, sys, block, celldist0, colors; dimming = plot[:dimming][])
+        plot[:allcells][] &&
+            plotsites!(plot, sys, celldist, colors; dimming = plot[:dimming][])
+    end
+
+    plot[:intralinks][] &&
+        plotlinks!(plot, sys, intrablock, celldist0, colors; dimming = 0.0)
+    plotsites!(plot, sys, celldist0, colors; dimming = 0.0)
+
+    return plot
+end
+
+
 function plot(sys::System; resolution = (1024, 1024), kw...)
     scene = Scene(resolution = resolution)
     cam = cam3d!(scene)

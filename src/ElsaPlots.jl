@@ -5,7 +5,6 @@ import AbstractPlotting: default_theme, Plot, plot!, plot, to_value
 using Base.Iterators: take, cycle
 using Statistics: mean
 using Elsa: vertices, Bandstructure
-#using Elsa: nsublats, bravaismatrix, padright, site, BlockIterator, _rdr, Block
 
 export plot, scale!
 

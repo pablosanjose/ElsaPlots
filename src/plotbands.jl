@@ -18,7 +18,9 @@ function plot!(plot::BandPlot2D)
     for (nb, color) in zip(bands, colors)
         band = bs.bands[nb]
         vertices = band.mesh.vertices
-        lines!(plot, first.(vertices), last.(vertices), linewidth = plot[:linewidth], color = color)
+        simplices = band.simplices
+        linesegments!(plot, (t -> vertices[first(t)] => vertices[last(t)]).(simplices),
+                      linewidth = plot[:linewidth], color = color)
     end
     return plot
  end
@@ -40,7 +42,7 @@ function plot!(plot::BandPlot3D)
     for (nb, color) in zip(bands, colors)
         band = bs.bands[nb]
         vertices = band.mesh.vertices
-        simplices = [s[j] for s in band.simplices, j in 1:3]
+        simplices = band.simplices #[s[j] for s in band.simplices, j in 1:3]
         if isempty(simplices)
             scatter!(plot, vertices, color = color)
         else
