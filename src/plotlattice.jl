@@ -118,11 +118,11 @@ function addtooltips!(scene, h)
         FRect((mp .+ 5), 1,1)
     end
     textpos = lift(scene.events.mouseposition) do mp
-        Vec3f0((mp .+ 5)..., 120)
+        Vec3f0((mp .+ 5)..., 0)
     end
     popup = poly!(campixel(scene), poprect, raw = true, color = RGBAf0(1,1,1,0), visible = visible)
     rect = popup[end]
-    translate!(rect, Vec3f0(0, 0, 100))
+    # translate!(rect, Vec3f0(10, 0, 100))
     text!(popup, "( 0.000,  0.000)", textsize = 30, position = textpos, color = :black, align = (:center, :center), raw = true, visible = visible)
     text_field = popup[end]
     on(scene.events.mouseposition) do event
@@ -167,7 +167,8 @@ function popuptext_site(plot, idx, layer, h)
     onsite = round.(har.h[siteidx, siteidx], digits = plot[:digits][])
     isreal = all(o -> imag(o) ≈ 0, onsite)
     txt = isreal ? matrixstring(real.(onsite)) : matrixstring(onsite)
-    return txt
+    txt´ = string("Onsite :\n", txt)
+    return txt´
 end
 
 function popuptext_hop(plot, idx, layer´, h)
@@ -175,17 +176,19 @@ function popuptext_hop(plot, idx, layer´, h)
     totalhar = plot[:allcells][] ? length(h.harmonics) : 1
     subdst, subsrc, nhar = Tuple(CartesianIndices((1:nsubs, 1:nsubs, 1:totalhar))[layer´])
     har = h.harmonics[nhar]
-    hopping = round.(har.h[subdst, subsrc], digits = plot[:digits][])
+    hopping = round.(nonzeros(har.h)[idx], digits = plot[:digits][])
+    # hopping = round.(har.h[subdst, subsrc], digits = plot[:digits][])
     isreal = all(o -> imag(o) ≈ 0, hopping)
     txt = isreal ? matrixstring(real.(hopping)) : matrixstring(hopping)
-    return txt
+    txt´ = string("Hopping :\n", txt)
+    return txt´
 end
 
 matrixstring(x::Number) = string(x)
 function matrixstring(s::SMatrix) 
     ss = repr("text/plain", s)
     pos = findfirst(isequal('\n'), ss)
-    return pos === nothing ? ss : ss[pos:end]
+    return pos === nothing ? ss : ss[pos + 1:end]
 end
 
 # function matrixstring(s::SMatrix{N,M}) where {N,M}
