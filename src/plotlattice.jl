@@ -2,6 +2,7 @@ function plot(h::Hamiltonian{<:Lattice{3}}; kw...)
     scene = hamiltonianplot3d(h; kw...)
     plot = scene[end]
     plot[:tooltips][] && addtooltips!(scene, h)
+    # scale!(scene)
     return scene
 end
 
@@ -19,6 +20,7 @@ plot(bs::Lattice{1}; kw...) = latticeplot2d(bs; kw...)
         siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0,
         linkthickness = 4, linkoffset = 0.99, linkradius = 0.015,
         tooltips = true, digits = 3,
+        _tooltips_rowcolhar = Vector{Tuple{Int,Int,Int}}[],
         colorscheme = map(t -> RGBAf0(t...),
             ((0.960,0.600,.327), (0.410,0.067,0.031),(0.940,0.780,0.000),
             (0.640,0.760,0.900),(0.310,0.370,0.650),(0.600,0.550,0.810),
@@ -34,19 +36,28 @@ function plot!(plot::HamiltonianPlot3D)
     plot[:siteradius][] *= meandist(h)
 
     # plot sites
-    for har in h.harmonics, (ssrc, csrc) in zip(sublats, colors)
+    for (n, har) in enumerate(h.harmonics), (ssrc, csrc) in zip(sublats, colors)
         iszero(har.dn) || plot[:allcells][] || break
         csrc´ = iszero(har.dn) ? csrc : transparent(csrc, 1 - plot[:dimming][])
-        plotsites!(plot, lat, siterange(lat, ssrc), har.dn, csrc´)
+        itr = siterange(lat, ssrc)
+        if plot[:tooltips][] 
+            t = [(site, 0, n) for site in itr]
+            isempty(t) || push!(plot[:_tooltips_rowcolhar][], t)
+        end
+        plotsites!(plot, lat, itr, har.dn, csrc´)
     end
 
     # plot links
-    for har in h.harmonics
+    for (n, har) in enumerate(h.harmonics)
         iszero(har.dn) || plot[:allcells][] || break
         for (ssrc, csrc) in zip(sublats, colors)
             csrc´ = iszero(har.dn) ? csrc : transparent(csrc, 1 - plot[:dimming][])
             for (sdst, cdst) in zip(sublats, colors)
                 itr = Elsa.indicesnonzeros(har, siterange(lat, sdst), siterange(lat, ssrc))
+                if plot[:tooltips][]
+                    t = [(row, col, n) for (row, col) in itr if !(iszero(har.dn) && row == col)]
+                    isempty(t) || push!(plot[:_tooltips_rowcolhar][], t)
+                end
                 plotlinks!(plot, lat, itr, har.dn, csrc´)
             end
         end
@@ -56,11 +67,13 @@ function plot!(plot::HamiltonianPlot3D)
 end
 
 function plotsites!(plot, lat, srange, dn, color)
-    isempty(srange) && return nothing
     allsites = Elsa.sites(lat)
     br = lat.bravais.matrix
     sites = [allsites[i] + br * dn for i in srange]
-    plot[:shaded][] ? plotsites_hi!(plot, sites, color) : plotsites_lo!(plot, sites, color)
+    if !isempty(sites)
+        plot[:shaded][] ? plotsites_hi!(plot, sites, color) : plotsites_lo!(plot, sites, color)
+    end
+    return plot
 end
 
 function plotsites_lo!(plot, sites, color)
@@ -80,22 +93,23 @@ function plotsites_hi!(plot, sites, color)
 end
 
 function plotlinks!(plot, lat, itr, dn, color)
-    isempty(itr) && return nothing
     links = Pair{SVector{3,Float32},SVector{3,Float32}}[]
     sites = Elsa.sites(lat)
     br = lat.bravais.matrix
     for (row, col) in itr
+        iszero(dn) && row == col && continue
         rsrc = padright(sites[col], Val(3))
         rdst = padright(sites[row] + br * dn, Val(3))
         push!(links, rsrc => iszero(dn) ? (rdst + rsrc) / 2 : rdst)
     end
-    plot[:shaded][] ? plotlinks_hi!(plot, links, color) : plotlinks_lo!(plot, links, color)
+    if !isempty(links)
+        plot[:shaded][] ? plotlinks_hi!(plot, links, color) : plotlinks_lo!(plot, links, color)
+    end
+    return plot
 end
 
 function plotlinks_lo!(plot, links, color)
-    linesegments!(plot, links;
-        color = color,
-        linewidth = plot[:linkthickness][])
+    linesegments!(plot, links; color = color, linewidth = plot[:linkthickness][])
     return nothing
 end
 
@@ -122,14 +136,14 @@ function addtooltips!(scene, h)
     end
     popup = poly!(campixel(scene), poprect, raw = true, color = RGBAf0(1,1,1,0), visible = visible)
     rect = popup[end]
-    # translate!(rect, Vec3f0(10, 0, 100))
-    text!(popup, "( 0.000,  0.000)", textsize = 30, position = textpos, color = :black, align = (:center, :center), raw = true, visible = visible)
+    text!(popup, " ", textsize = 30, position = textpos, color = :black, align = (:center, :center), raw = true, visible = visible)
     text_field = popup[end]
     on(scene.events.mouseposition) do event
         subplot, idx = mouse_selection(scene)
         layer = findfirst(isequal(subplot), sceneplot.plots)
         if layer !== nothing && idx > 0
-            txt = popuptext(sceneplot, idx, layer, h)
+            idx´ = fix_linesegments_bug(idx, subplot)
+            txt = popuptext(sceneplot, layer, idx´, h)
             text_field[1] = txt
             visible[] = true
         else
@@ -140,56 +154,78 @@ function addtooltips!(scene, h)
     return scene
 end
 
-# function popuptext(args...)
-#     txt = selectelement(args...)
-#     txt = sprint(io -> print(io, element))
-#     return txt
-# end
-function popuptext(plot, idx, layer, h)
-    nsubs = Elsa.nsublats(h.lattice)
-    totalhar = plot[:allcells][] ? length(h.harmonics) : 1
-    if layer <= nsubs * totalhar
-        txt = popuptext_site(plot, idx, layer, h)
+# idx returned by mouse_selection seems wrong by a factor 2 in LineSegments subplot
+fix_linesegments_bug(idx, subplot::LineSegments) = idx ÷ 2
+fix_linesegments_bug(idx, subplot) = idx
+
+function popuptext(sceneplot, layer, idx, h)
+    cache = sceneplot[:_tooltips_rowcolhar][]
+    checkbounds(Bool, cache, layer) || return string("Bug in layer: ", layer, " of ", length(cache))
+    checkbounds(Bool, cache[layer], idx) || return string("Bug in idx: ", idx, " of ", length(cache[layer]))
+    (row, col_or_zero, haridx) = cache[layer][idx]
+    if col_or_zero == 0
+        col = iszero(col_or_zero) ? row : col_or_zero
+        har = h.harmonics[1]
     else
-        layer´ = layer - nsubs * totalhar
-        txt = popuptext_hop(plot, idx, layer´, h)
+        col = col_or_zero
+        har = h.harmonics[haridx]
     end
-    return txt
-end
-
-function popuptext_site(plot, idx, layer, h)
-    nsubs = Elsa.nsublats(h.lattice)
-    sub = mod1(layer, nsubs)
-    siteidx = Elsa.siteindex(h.lattice, sub, idx)
-    nhar = fld(layer - 1, nsubs) + 1
-    har = h.harmonics[nhar]
-    site = Elsa.sites(h.lattice, sub)[idx]
-    onsite = round.(har.h[siteidx, siteidx], digits = plot[:digits][])
-    isreal = all(o -> imag(o) ≈ 0, onsite)
-    txt = isreal ? matrixstring(real.(onsite)) : matrixstring(onsite)
-    txt´ = string("Onsite :\n", txt)
-    return txt´
-end
-
-function popuptext_hop(plot, idx, layer´, h)
-    nsubs = Elsa.nsublats(h.lattice)
-    totalhar = plot[:allcells][] ? length(h.harmonics) : 1
-    subdst, subsrc, nhar = Tuple(CartesianIndices((1:nsubs, 1:nsubs, 1:totalhar))[layer´])
-    har = h.harmonics[nhar]
-    hopping = round.(nonzeros(har.h)[idx], digits = plot[:digits][])
-    # hopping = round.(har.h[subdst, subsrc], digits = plot[:digits][])
-    isreal = all(o -> imag(o) ≈ 0, hopping)
-    txt = isreal ? matrixstring(real.(hopping)) : matrixstring(hopping)
-    txt´ = string("Hopping :\n", txt)
+    element = round.(har.h[row, col], digits = sceneplot[:digits][])
+    isreal = all(o -> imag(o) ≈ 0, element)
+    txt = isreal ? matrixstring(real.(element)) : matrixstring(element)
+    if col_or_zero == 0
+        txt´ = string("Onsite :", txt)
+    else
+        txt´ = string("Hopping :", txt)
+    end
     return txt´
 end
 
 matrixstring(x::Number) = string(x)
-function matrixstring(s::SMatrix) 
+function matrixstring(s::SMatrix)
     ss = repr("text/plain", s)
     pos = findfirst(isequal('\n'), ss)
-    return pos === nothing ? ss : ss[pos + 1:end]
+    return pos === nothing ? ss : ss[pos:end]
 end
+
+# function popuptext(plot, layer, idx, h)
+#     nsubs = Elsa.nsublats(h.lattice)
+#     totalhar = plot[:allcells][] ? length(h.harmonics) : 1
+#     if layer <= nsubs * totalhar
+#         txt = popuptext_site(plot, layer, idx, h)
+#     else
+#         layer´ = layer - nsubs * totalhar
+#         txt = popuptext_hop(plot, layer´, idx, h)
+#     end
+#     return txt
+# end
+
+# function popuptext_site(plot, layer, idx, h)
+#     nsubs = Elsa.nsublats(h.lattice)
+#     sub = mod1(layer, nsubs)
+#     siteidx = Elsa.siteindex(h.lattice, sub, idx)
+#     nhar = fld(layer - 1, nsubs) + 1
+#     har = h.harmonics[nhar]
+#     site = Elsa.sites(h.lattice, sub)[idx]
+#     onsite = round.(har.h[siteidx, siteidx], digits = plot[:digits][])
+#     isreal = all(o -> imag(o) ≈ 0, onsite)
+#     txt = isreal ? matrixstring(real.(onsite)) : matrixstring(onsite)
+#     txt´ = string("Onsite :\n", txt)
+#     return txt´
+# end
+
+# function popuptext_hop(plot, layer´, idx, h)
+#     nsubs = Elsa.nsublats(h.lattice)
+#     totalhar = plot[:allcells][] ? length(h.harmonics) : 1
+#     subdst, subsrc, nhar = Tuple(CartesianIndices((1:nsubs, 1:nsubs, 1:totalhar))[layer´])
+#     har = h.harmonics[nhar]
+#     hopping = round.(nonzeros(har.h)[idx], digits = plot[:digits][])
+#     # hopping = round.(har.h[subdst, subsrc], digits = plot[:digits][])
+#     isreal = all(o -> imag(o) ≈ 0, hopping)
+#     txt = isreal ? matrixstring(real.(hopping)) : matrixstring(hopping)
+#     txt´ = string("Hopping :\n", txt)
+#     return txt´
+# end
 
 # function matrixstring(s::SMatrix{N,M}) where {N,M}
 #     ss = string.(Vector(vec(transpose(s))))

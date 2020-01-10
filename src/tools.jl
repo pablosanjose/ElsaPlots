@@ -17,6 +17,15 @@ function meandist(h::Hamiltonian)
     return distsum / num
 end
 
+function matrixidx(h::AbstractSparseMatrix, row, col)
+    for ptr in nzrange(h, col)
+        rowvals(h)[ptr] == row && return ptr
+    end
+    return 0
+end
+
+matrixidx(h::DenseMatrix, row, col) = LinearIndices(h)[row, col]
+
 transparent(rgba::T, v = 0.5) where T = T(rgba.r, rgba.g, rgba.b, rgba.alpha * v)
 
 function darken(rgba::T, v = 0.66) where T
