@@ -1,19 +1,12 @@
-function plot(h::Hamiltonian{<:Lattice{3}}; kw...)
-    scene = hamiltonianplot3d(h; kw...)
+function plot(h::Hamiltonian{<:Lattice}; kw...)
+    scene = hamiltonianplot(h; kw...)
     plot = scene[end]
     plot[:tooltips][] && addtooltips!(scene, h)
     # scale!(scene)
     return scene
 end
 
-plot(bs::Hamiltonian{<:Lattice{2}}; kw...) = hamiltonianplot2d(bs; kw...)
-plot(bs::Hamiltonian{<:Lattice{1}}; kw...) = hamiltonianplot2d(bs; kw...)
-
-plot(bs::Lattice{3}; kw...) = latticeplot3d(bs; kw...)
-plot(bs::Lattice{2}; kw...) = latticeplot2d(bs; kw...)
-plot(bs::Lattice{1}; kw...) = latticeplot2d(bs; kw...)
-
-@recipe(HamiltonianPlot3D, hamiltonian) do scene
+@recipe(HamiltonianPlot, hamiltonian) do scene
     Theme(
         allintra = false, allcells = true, intralinks = true, interlinks = true,
         shaded = false, dimming = 0.75,
@@ -28,7 +21,7 @@ plot(bs::Lattice{1}; kw...) = latticeplot2d(bs; kw...)
     )
 end
 
-function plot!(plot::HamiltonianPlot3D)
+function plot!(plot::HamiltonianPlot)
     h = to_value(plot[1])
     lat = h.lattice
     colors = cycle(plot[:colorscheme][])
@@ -61,7 +54,7 @@ end
 function plotsites!(plot, lat, srange, dn, n, color)
     allsites = Elsa.sites(lat)
     br = lat.bravais.matrix
-    sites = [allsites[i] + br * dn for i in srange]
+    sites = [padright(allsites[i] + br * dn, Val(3)) for i in srange]
     plot[:tooltips][] && (tt = [(site, 0, n) for site in srange])
     if !isempty(sites)
         plot[:shaded][] ? plotsites_hi!(plot, sites, color) : plotsites_lo!(plot, sites, color)
