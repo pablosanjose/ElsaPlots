@@ -4,6 +4,7 @@ plot(bs::Bandstructure{2}; kw...) = bandplot3d(bs; kw...)
 @recipe(BandPlot2D, bandstructure) do scene
     Theme(
     linewidth = 3,
+    wireframe = true,
     colorscheme = map(t -> RGBAf0((0.8 .* t)...),
         ((0.973, 0.565, 0.576), (0.682, 0.838, 0.922), (0.742, 0.91, 0.734),
          (0.879, 0.744, 0.894), (1.0, 0.84, 0.0), (1.0, 1.0, 0.669),
@@ -27,7 +28,8 @@ function plot!(plot::BandPlot2D)
 
 @recipe(BandPlot3D, bandstructure) do scene
     Theme(
-    wireframe = 0,
+    linewidth = 1,
+    wireframe = false,
     colorscheme = map(t -> RGBAf0(t...),
         ((0.973, 0.565, 0.576), (0.682, 0.838, 0.922), (0.742, 0.91, 0.734),
          (0.879, 0.744, 0.894), (1.0, 0.84, 0.0), (1.0, 1.0, 0.669),
@@ -43,14 +45,15 @@ function plot!(plot::BandPlot3D)
         band = bs.bands[nb]
         vertices = band.mesh.vertices
         # vertices = [s[j] for s in band.mesh.vertices, j in 1:3]
-        # simplices = SVector.(band.simplices) 
+        # simplices = SVector.(band.simplices)
         simplices = [s[j] for s in band.simplices, j in 1:3]
         if isempty(simplices)
             scatter!(plot, vertices, color = color)
         else
             mesh!(plot, vertices, simplices, color = color, transparency = false)
-            # linesegments!(plot, (t -> vertices[first(t)] => vertices[last(t)]).(simplices),
-            #               linewidth = 1)
+            plot[:wireframe][] && linesegments!(plot,
+                (t -> vertices[first(t)] => vertices[last(t)]).(band.simplices),
+                linewidth = plot[:linewidth])
         end
     end
     return plot
