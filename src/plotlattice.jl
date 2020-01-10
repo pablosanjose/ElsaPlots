@@ -1,5 +1,5 @@
-function plot(h::Hamiltonian{<:Lattice}; kw...)
-    scene = hamiltonianplot(h; kw...)
+function plot(h::Hamiltonian{<:Lattice}; resolution = (1000, 1000), kw...)
+    scene = hamiltonianplot(h; resolution = resolution, kw...)
     plot = scene[end]
     plot[:tooltips][] && addtooltips!(scene, h)
     # scale!(scene)
@@ -41,6 +41,7 @@ function plot!(plot::HamiltonianPlot)
         iszero(har.dn) || plot[:allcells][] || break
         for (ssrc, csrc) in zip(sublats, colors)
             csrc´ = iszero(har.dn) ? csrc : transparent(csrc, 1 - plot[:dimming][])
+            csrc´ = darken(csrc´, 0.2)
             for (sdst, cdst) in zip(sublats, colors)
                 itr = Elsa.indicesnonzeros(har, siterange(lat, sdst), siterange(lat, ssrc))
                 plotlinks!(plot, lat, itr, har.dn, n, csrc´)
@@ -86,9 +87,11 @@ function plotlinks!(plot, lat, itr, dn, n, color)
     br = lat.bravais.matrix
     for (row, col) in itr
         iszero(dn) && row == col && continue
-        rsrc = padright(sites[col], Val(3))
         rdst = padright(sites[row] + br * dn, Val(3))
-        push!(links, rsrc => iszero(dn) ? (rdst + rsrc) / 2 : rdst)
+        rsrc = padright(sites[col], Val(3))
+        rdst = iszero(dn) ? (rdst + rsrc) / 2 : rdst
+        rsrc = rsrc + plot[:siteradius][] * plot[:linkoffset][] * normalize(rdst - rsrc)
+        push!(links, rsrc => rdst)
         plot[:tooltips][] && push!(tt, (row, col, n))
     end
     if !isempty(links)
