@@ -44,13 +44,11 @@ function plot!(plot::BandPlot3D)
     for (nb, color) in zip(bands, colors)
         band = bs.bands[nb]
         vertices = band.mesh.vertices
-        # vertices = [s[j] for s in band.mesh.vertices, j in 1:3]
-        # simplices = SVector.(band.simplices)
-        simplices = [s[j] for s in band.simplices, j in 1:3]
-        if isempty(simplices)
+        connectivity = [s[j] for s in band.simplices, j in 1:3]
+        if isempty(connectivity)
             scatter!(plot, vertices, color = color)
         else
-            mesh!(plot, vertices, simplices, color = color, transparency = false)
+            mesh!(plot, vertices, connectivity, color = color, transparency = false)
             plot[:wireframe][] && linesegments!(plot,
                 (t -> vertices[first(t)] => vertices[last(t)]).(band.simplices),
                 linewidth = plot[:linewidth])
