@@ -17,7 +17,8 @@ end
         colorscheme = map(t -> RGBAf0(t...),
             ((0.960,0.600,.327), (0.410,0.067,0.031),(0.940,0.780,0.000),
             (0.640,0.760,0.900),(0.310,0.370,0.650),(0.600,0.550,0.810),
-            (0.150,0.051,0.100),(0.870,0.530,0.640),(0.720,0.130,0.250)))
+            (0.150,0.051,0.100),(0.870,0.530,0.640),(0.720,0.130,0.250))),
+        light = Vec{3,Float32}[[0, 0, 10], [0, 10, 0], [10, 0, 0], [10, 10, 10], [-10, -10, -10]]
     )
 end
 
@@ -76,7 +77,7 @@ end
 function plotsites_hi!(plot, sites, color)
     meshscatter!(plot, sites;
         color = color,
-        markersize = plot[:siteradius][] * plot[:linkoffset][])
+        markersize = plot[:siteradius][] * plot[:linkoffset][], light = plot[:light][])
     return nothing
 end
 
@@ -114,7 +115,8 @@ function plotlinks_hi!(plot, links, color)
     scales = [Vec3f0(radius, radius, norm(r2 - r1)/2) for (r1, r2) in links]
     cylinder = GeometryTypes.Cylinder(Point3f0(0., 0., -1.0), Point3f0(0., 0, 1.0), Float32(1))
     meshscatter!(plot, positions;
-        color = color, marker = cylinder, markersize = scales, rotations = rotvectors)
+        color = color, marker = cylinder, markersize = scales, rotations = rotvectors,
+        light = plot[:light][])
     return nothing
 end
 
