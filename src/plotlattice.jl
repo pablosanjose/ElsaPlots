@@ -2,15 +2,15 @@ function plot(h::Hamiltonian{<:Lattice}; resolution = (1000, 1000), kw...)
     scene = hamiltonianplot(h; resolution = resolution, kw...)
     plot = scene[end]
     plot[:tooltips][] && addtooltips!(scene, h)
-    # scale!(scene)
+    scale!(scene)
     return scene
 end
 
 @recipe(HamiltonianPlot, hamiltonian) do scene
     Theme(
         allintra = false, allcells = true, intralinks = true, interlinks = true,
-        shaded = false, dimming = 0.75,
-        siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0, linkdarken = 0.3,
+        shadedsites = false, shadedlinks = true, dimming = 0.75,
+        siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0, linkdarken = 0.0,
         linkthickness = 6, linkoffset = 0.99, linkradius = 0.015,
         tooltips = true, digits = 3,
         _tooltips_rowcolhar = Vector{Tuple{Int,Int,Int}}[],
@@ -58,7 +58,7 @@ function plotsites!(plot, lat, srange, dn, n, color)
     sites = [padright(allsites[i] + br * dn, Val(3)) for i in srange]
     plot[:tooltips][] && (tt = [(site, 0, n) for site in srange])
     if !isempty(sites)
-        plot[:shaded][] ? plotsites_hi!(plot, sites, color) : plotsites_lo!(plot, sites, color)
+        plot[:shadedsites][] ? plotsites_hi!(plot, sites, color) : plotsites_lo!(plot, sites, color)
         plot[:tooltips][] && push!(plot[:_tooltips_rowcolhar][], tt)
     end
     return plot
@@ -95,7 +95,7 @@ function plotlinks!(plot, lat, itr, dn, n, color)
         plot[:tooltips][] && push!(tt, (row, col, n))
     end
     if !isempty(links)
-        plot[:shaded][] ? plotlinks_hi!(plot, links, color) : plotlinks_lo!(plot, links, color)
+        plot[:shadedlinks][] ? plotlinks_hi!(plot, links, color) : plotlinks_lo!(plot, links, color)
         plot[:tooltips][] && push!(plot[:_tooltips_rowcolhar][], tt)
     end
     return plot
