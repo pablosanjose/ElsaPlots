@@ -10,7 +10,7 @@ end
     Theme(
         allintra = false, allcells = true, intralinks = true, interlinks = true,
         shaded = false, dimming = 0.75,
-        siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0,
+        siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0, linkdarken = 0.3,
         linkthickness = 6, linkoffset = 0.99, linkradius = 0.015,
         tooltips = true, digits = 3,
         _tooltips_rowcolhar = Vector{Tuple{Int,Int,Int}}[],
@@ -41,7 +41,7 @@ function plot!(plot::HamiltonianPlot)
         iszero(har.dn) || plot[:allcells][] || break
         for (ssrc, csrc) in zip(sublats, colors)
             csrc´ = iszero(har.dn) ? csrc : transparent(csrc, 1 - plot[:dimming][])
-            csrc´ = darken(csrc´, 0.2)
+            csrc´ = darken(csrc´, plot[:linkdarken][])
             for (sdst, cdst) in zip(sublats, colors)
                 itr = Elsa.indicesnonzeros(har, siterange(lat, sdst), siterange(lat, ssrc))
                 plotlinks!(plot, lat, itr, har.dn, n, csrc´)
@@ -102,6 +102,7 @@ function plotlinks!(plot, lat, itr, dn, n, color)
 end
 
 function plotlinks_lo!(plot, links, color)
+    # linesegments!(plot, links; color = darken(color, plot[:siteborderdarken][]), linewidth = 2+plot[:linkthickness][])
     linesegments!(plot, links; color = color, linewidth = plot[:linkthickness][])
     return nothing
 end
