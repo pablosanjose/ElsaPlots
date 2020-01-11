@@ -150,7 +150,7 @@ function addtooltips!(scene, h)
 end
 
 # idx returned by mouse_selection seems wrong by a factor 2 in LineSegments subplot
-fix_linesegments_bug(idx, subplot::LineSegments) = idx ÷ 2
+fix_linesegments_bug(idx, subplot::LineSegments) = Int(idx/2) # catches odd idx
 fix_linesegments_bug(idx, subplot) = idx
 
 function popuptext(sceneplot, layer, idx, h)
