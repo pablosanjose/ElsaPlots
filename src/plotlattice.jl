@@ -14,7 +14,7 @@ end
         linkthickness = 6, linkoffset = 0.99, linkradius = 0.015,
         tooltips = true, digits = 3,
         _tooltips_rowcolhar = Vector{Tuple{Int,Int,Int}}[],
-        colorscheme = map(t -> RGBAf0(t...),
+        colors = map(t -> RGBAf0(t...),
             ((0.960,0.600,.327), (0.410,0.067,0.031),(0.940,0.780,0.000),
             (0.640,0.760,0.900),(0.310,0.370,0.650),(0.600,0.550,0.810),
             (0.150,0.051,0.100),(0.870,0.530,0.640),(0.720,0.130,0.250))),
@@ -25,7 +25,7 @@ end
 function plot!(plot::HamiltonianPlot)
     h = to_value(plot[1])
     lat = h.lattice
-    colors = cycle(plot[:colorscheme][])
+    colors = cycle(plot[:colors][])
     sublats = Elsa.sublats(lat)
     plot[:siteradius][] *= meandist(h)
 

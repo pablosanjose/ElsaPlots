@@ -5,7 +5,7 @@ plot(bs::Bandstructure{2}; kw...) = bandplot3d(bs; kw...)
     Theme(
     linewidth = 3,
     wireframe = true,
-    colorscheme = map(t -> RGBAf0((0.8 .* t)...),
+    colors = map(t -> RGBAf0((0.8 .* t)...),
         ((0.973, 0.565, 0.576), (0.682, 0.838, 0.922), (0.742, 0.91, 0.734),
          (0.879, 0.744, 0.894), (1.0, 0.84, 0.0), (1.0, 1.0, 0.669),
          (0.898, 0.762, 0.629), (0.992, 0.843, 0.93), (0.88, 0.88, 0.88)))
@@ -15,7 +15,7 @@ end
 function plot!(plot::BandPlot2D)
     bs = to_value(plot[1])
     bands = haskey(plot, :bands) ? to_value(plot[:bands]) : eachindex(bs.bands)
-    colors = cycle(plot[:colorscheme][])
+    colors = cycle(plot[:colors][])
     for (nb, color) in zip(bands, colors)
         band = bs.bands[nb]
         vertices = band.mesh.vertices
@@ -30,7 +30,7 @@ function plot!(plot::BandPlot2D)
     Theme(
     linewidth = 1,
     wireframe = false,
-    colorscheme = map(t -> RGBAf0(t...),
+    colors = map(t -> RGBAf0(t...),
         ((0.973, 0.565, 0.576), (0.682, 0.838, 0.922), (0.742, 0.91, 0.734),
          (0.879, 0.744, 0.894), (1.0, 0.84, 0.0), (1.0, 1.0, 0.669),
          (0.898, 0.762, 0.629), (0.992, 0.843, 0.93), (0.88, 0.88, 0.88)))
@@ -40,7 +40,7 @@ end
 function plot!(plot::BandPlot3D)
     bs = to_value(plot[1])
     bands = haskey(plot, :bands) ? to_value(plot[:bands]) : eachindex(bs.bands)
-    colors = cycle(plot[:colorscheme][])
+    colors = cycle(plot[:colors][])
     for (nb, color) in zip(bands, colors)
         band = bs.bands[nb]
         vertices = band.mesh.vertices

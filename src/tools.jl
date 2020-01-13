@@ -26,13 +26,13 @@ end
 
 matrixidx(h::DenseMatrix, row, col) = LinearIndices(h)[row, col]
 
-transparent(rgba::T, v = 0.5) where T = T(rgba.r, rgba.g, rgba.b, rgba.alpha * v)
+transparent(rgba::RGBAf0, v = 0.5) where T = T(rgba.r, rgba.g, rgba.b, rgba.alpha * v)
 
-function darken(rgba::T, v = 0.66) where T
+function darken(rgba::RGBAf0, v = 0.66)
     r = max(0, min(rgba.r * (1 - v), 1))
     g = max(0, min(rgba.g * (1 - v), 1))
     b = max(0, min(rgba.b * (1 - v), 1))
-    T(r,g,b,rgba.alpha)
+    RGBAf0(r,g,b,rgba.alpha)
 end
 function lighten(rgba, v = 0.66)
     darken(rgba, -v)
