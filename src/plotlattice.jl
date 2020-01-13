@@ -8,7 +8,7 @@ end
 
 @recipe(HamiltonianPlot, hamiltonian) do scene
     Theme(
-        allintra = false, allcells = true, intralinks = true, interlinks = true,
+        allintra = false, allcells = true, showsites = true, showlinks = true,
         shadedsites = false, shadedlinks = true, dimming = 0.75,
         siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0, linkdarken = 0.0,
         linkthickness = 6, linkoffset = 0.99, linkradius = 0.015,
@@ -30,25 +30,27 @@ function plot!(plot::HamiltonianPlot)
     plot[:siteradius][] *= meandist(h)
 
     # plot sites
-    for (n, har) in enumerate(h.harmonics), (ssrc, csrc) in zip(sublats, colors)
-        iszero(har.dn) || plot[:allcells][] || break
-        csrc´ = iszero(har.dn) ? csrc : transparent(csrc, 1 - plot[:dimming][])
-        itr = siterange(lat, ssrc)
-        plotsites!(plot, lat, itr, har.dn, n, csrc´)
-    end
+    plot[:showsites][] &&
+        for (n, har) in enumerate(h.harmonics), (ssrc, csrc) in zip(sublats, colors)
+            iszero(har.dn) || plot[:allcells][] || break
+            csrc´ = iszero(har.dn) ? csrc : transparent(csrc, 1 - plot[:dimming][])
+            itr = siterange(lat, ssrc)
+            plotsites!(plot, lat, itr, har.dn, n, csrc´)
+        end
 
     # plot links
-    for (n, har) in enumerate(h.harmonics)
-        iszero(har.dn) || plot[:allcells][] || break
-        for (ssrc, csrc) in zip(sublats, colors)
-            csrc´ = iszero(har.dn) ? csrc : transparent(csrc, 1 - plot[:dimming][])
-            csrc´ = darken(csrc´, plot[:linkdarken][])
-            for (sdst, cdst) in zip(sublats, colors)
-                itr = Elsa.indicesnonzeros(har, siterange(lat, sdst), siterange(lat, ssrc))
-                plotlinks!(plot, lat, itr, har.dn, n, csrc´)
+    plot[:showlinks][] &&
+        for (n, har) in enumerate(h.harmonics)
+            iszero(har.dn) || plot[:allcells][] || break
+            for (ssrc, csrc) in zip(sublats, colors)
+                csrc´ = iszero(har.dn) ? csrc : transparent(csrc, 1 - plot[:dimming][])
+                csrc´ = darken(csrc´, plot[:linkdarken][])
+                for (sdst, cdst) in zip(sublats, colors)
+                    itr = Elsa.indicesnonzeros(har, siterange(lat, sdst), siterange(lat, ssrc))
+                    plotlinks!(plot, lat, itr, har.dn, n, csrc´)
+                end
             end
         end
-    end
 
     return plot
 end
