@@ -9,7 +9,7 @@ end
 @recipe(HamiltonianPlot, hamiltonian) do scene
     Theme(
         allintra = false, allcells = true, showsites = true, showlinks = true,
-        shadedsites = false, shadedlinks = true, dimming = 0.75,
+        shadedsites = false, shadedlinks = false, dimming = 0.75,
         siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0, linkdarken = 0.0,
         linkthickness = 6, linkoffset = 0.99, linkradius = 0.015,
         tooltips = true, digits = 3,
