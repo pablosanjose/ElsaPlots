@@ -10,8 +10,8 @@ end
     Theme(
         allintra = false, allcells = true, showsites = true, showlinks = true,
         shadedsites = false, shadedlinks = false, dimming = 0.75,
-        siteradius = 0.12, siteborder = 3, siteborderdarken = 1.0, linkdarken = 0.0,
-        linkthickness = 6, linkoffset = 0.99, linkradius = 0.015,
+        siteradius = 0.2, siteborder = 3, siteborderdarken = 1.0, linkdarken = 0.0,
+        linkthickness = 6, linkoffset = missing, linkradius = 0.1,
         tooltips = true, digits = 3,
         _tooltips_rowcolhar = Vector{Tuple{Int,Int,Int}}[],
         colors = map(t -> RGBAf0(t...),
@@ -27,7 +27,13 @@ function plot!(plot::HamiltonianPlot)
     lat = h.lattice
     colors = cycle(plot[:colors][])
     sublats = Elsa.sublats(lat)
-    plot[:siteradius][] *= meandist(h)
+
+    mdist = meandist(h)
+    plot[:siteradius][] *= mdist
+    plot[:linkradius][] *= mdist
+    lo = plot[:linkoffset][]
+    plot[:linkoffset][] =
+        lo === missing ? √max(1-(plot[:linkradius][]/plot[:siteradius][])^2, 0) : lo * mdist
 
     # plot sites
     plot[:showsites][] &&
@@ -79,7 +85,7 @@ end
 function plotsites_hi!(plot, sites, color)
     meshscatter!(plot, sites;
         color = color,
-        markersize = plot[:siteradius][] * plot[:linkoffset][], light = plot[:light][])
+        markersize = plot[:siteradius][], light = plot[:light][])
     return nothing
 end
 
