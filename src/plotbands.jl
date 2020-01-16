@@ -1,5 +1,16 @@
-plot(bs::Bandstructure{1}; kw...) = bandplot2d(bs; kw...)
-plot(bs::Bandstructure{2}; kw...) = bandplot3d(bs; kw...)
+function plot(bs::Bandstructure{1}; kw...)
+    scene = bandplot2d(bs; kw...)
+    axis = scene[Axis]
+    axis[:names, :axisnames] = ("φ", "ε")
+    return scene
+end
+
+function plot(bs::Bandstructure{2}; kw...)
+    scene = bandplot3d(bs; kw...)
+    axis = scene[Axis]
+    axis[:names, :axisnames] = ("φ₁", "φ₂", "ε")
+    return scene
+end
 
 @recipe(BandPlot2D, bandstructure) do scene
     Theme(
