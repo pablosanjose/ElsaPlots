@@ -60,10 +60,15 @@ function plot!(plot::BandPlot3D)
             scatter!(plot, vertices, color = color)
         else
             mesh!(plot, vertices, connectivity, color = color, transparency = false)
-            plot[:wireframe][] && linesegments!(plot,
-                (t -> vertices[first(t)] => vertices[last(t)]).(band.simplices),
-                linewidth = plot[:linewidth])
+            if plot[:wireframe][]
+                edgevertices = collect(Elsa.edgevertices(band.mesh))
+                linesegments!(plot, edgevertices, linewidth = plot[:linewidth])
+            end
         end
     end
     return plot
  end
+
+function allpairs(simplex::NTuple{D,Int}, vertices) where D
+    ntuple(i -> (i))
+end
