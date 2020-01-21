@@ -8,7 +8,7 @@ end
 function plot(bs::Bandstructure{2}; kw...)
     scene = bandplot3d(bs; kw...)
     axis = scene[Axis]
-    axis[:names, :axisnames] = ("φ₁", "φ₂", "ε")
+    to_value(scene[:show_axis]) && (axis[:names, :axisnames] = ("φ₁", "φ₂", "ε"))
     return scene
 end
 
