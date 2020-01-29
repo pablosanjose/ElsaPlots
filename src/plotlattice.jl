@@ -52,7 +52,7 @@ function plot!(plot::HamiltonianPlot)
                 csrc´ = iszero(har.dn) ? csrc : transparent(csrc, 1 - plot[:dimming][])
                 csrc´ = darken(csrc´, plot[:linkdarken][])
                 for (sdst, cdst) in zip(sublats, colors)
-                    itr = Elsa.indicesnonzeros(har, siterange(lat, sdst), siterange(lat, ssrc))
+                    itr = Elsa.eachindex_nz(har, siterange(lat, sdst), siterange(lat, ssrc))
                     plotlinks!(plot, lat, itr, har.dn, n, csrc´)
                 end
             end

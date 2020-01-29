@@ -6,7 +6,7 @@ function meandist(h::Hamiltonian)
     num = 0
     ss = Elsa.sites(h.lattice)
     br = h.lattice.bravais.matrix
-    for (row, col, dn) in Elsa.indicesnonzeros(h)
+    for (row, col, dn) in Elsa.eachindex_nz(h)
         if row != col
             num += 1
             rsrc = ss[col]
