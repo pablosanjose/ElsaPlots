@@ -180,9 +180,9 @@ function popuptext(sceneplot, layer, idx, h)
     isreal = all(o -> imag(o) ≈ 0, element)
     txt = isreal ? matrixstring(real.(element)) : matrixstring(element)
     if col_or_zero == 0
-        txt´ = string("Onsite :", txt)
+        txt´ = string("Onsite[$col] : ", txt)
     else
-        txt´ = string("Hopping :", txt)
+        txt´ = string("Hopping[$row, $col] : ", txt)
     end
     return txt´
 end
