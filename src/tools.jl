@@ -14,7 +14,7 @@ function meandist(h::Hamiltonian)
             distsum += norm(rsrc - rdst)
         end
     end
-    return distsum / num
+    return iszero(num) ? 0.0 : distsum / num
 end
 
 function matrixidx(h::AbstractSparseMatrix, row, col)

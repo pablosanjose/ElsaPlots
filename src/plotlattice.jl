@@ -28,7 +28,7 @@ function plot!(plot::HamiltonianPlot)
     colors = cycle(plot[:colors][])
     sublats = Elsa.sublats(lat)
 
-    mdist = meandist(h)
+    mdist = max(sqrt(plot[:siteradius][]), meandist(h))
     plot[:siteradius][] *= mdist
     plot[:linkradius][] *= mdist
     lo = plot[:linkoffset][]
