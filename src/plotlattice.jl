@@ -1,5 +1,5 @@
 function plot(h::Hamiltonian{<:Lattice}; resolution = (1000, 1000), kw...)
-    scene = hamiltonianplot(h; resolution = resolution, kw...)
+    scene = hamiltonianplot(h; resolution = resolution, scale_plot = false, kw...)
     plot = scene[end]
     plot[:tooltips][] && addtooltips!(scene, h)
     scale!(scene)
