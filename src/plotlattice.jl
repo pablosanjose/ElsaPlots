@@ -132,7 +132,7 @@ end
 
 function addtooltips!(scene, h)
     sceneplot = scene[end]
-    visible = node(:visible, false)
+    visible = Node(false)
     N = Elsa.blockdim(h)
     poprect = lift(scene.events.mouseposition) do mp
         FRect((mp .+ 5), 1,1)
